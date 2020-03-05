@@ -34,7 +34,7 @@ class ConnectFour
   end
 
   def winCondition
-    
+    @moves
   end
 
   def getMove()
@@ -66,7 +66,19 @@ class ConnectFour
     puts "Player #{marker}\'s turn."
     return @currentPlayerId
   end
+  
+end
 
+class BoardSpace(row,col)
+  def initialize
+    @col = col
+    @row = row
+    @marker = nil
+  end
+
+  def placeMarker(marker)
+    @marker = marker
+  end
 end
 
 class Player
