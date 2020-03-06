@@ -63,15 +63,19 @@ class ConnectFour
   end
 
   def find(row, col)
-    @current = root
+    @current = @root
     while !@current.nil?
-      if @current.row == row && @current.column == column)
+
+      if (@current.row == row && @current.column == col)
         return @current
+
       else
         @current = @current.right
+
         if @current.nil?
           return false
         end
+
       end
     end
   end
@@ -110,6 +114,7 @@ class ConnectFour
           if markerCount == 4
             return markerCount
           end
+
         end
       end
     end
@@ -129,6 +134,7 @@ class ConnectFour
           if markerCount == 4
             return markerCount
           end
+
         end
       end
     end
@@ -140,7 +146,7 @@ class ConnectFour
         current = find(i,j)
         markerCount = 0
         
-        while current.marker == marker && current.rightUp.marker == marker)
+        while (current.marker == marker && current.rightUp.marker == marker)
           markerCount += 1
           current = current.rightUp
 
@@ -165,6 +171,7 @@ class ConnectFour
           if markerCount == 4
             return markerCount
           end
+
         end
       end
     end
@@ -199,12 +206,13 @@ class ConnectFour
     puts "Player #{marker}\'s turn."
     return @currentPlayerId
   end
-  
 end
 
-class BoardSpace(row,col)
-  def initialize
-    @column = col
+class BoardSpace
+  attr_accessor :row, :column, :next, :marker, :left, :leftUp, :up, :rightUp, :right
+
+  def initialize(row, column)
+    @column = column
     @row = row
     @next = nil
     @marker = nil
@@ -239,7 +247,6 @@ class BoardSpace(row,col)
   def leftUpNode(node)
     @leftUp = node
   end
-
 end
 
 class Player
