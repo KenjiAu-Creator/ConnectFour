@@ -89,7 +89,85 @@ class ConnectFour
   end
 
   def winCondition
-    @moves
+    if (checkRight() || checkUp() || checkRightUp() || chickLeftUp())
+      return true
+    else
+      return false
+    end
+  end
+
+  def checkRight(marker)
+    for i in 1..6
+      for j in 1..3
+        # If we are in the third column and not consectutice, cannot finish 4 in a row.
+        current = find(i,j)
+        markerCount = 0
+
+        while (current.marker == marker && current.right.marker == marker)
+          markerCount += 1
+          current = current.right
+
+          if markerCount == 4
+            return markerCount
+          end
+        end
+      end
+    end
+  end
+ 
+  def checkUp(marker)
+    for i in 1..7
+      for j in 1..2
+        # If the second row does not have two in a row, cannot make 4 going up
+        markerCount = 0
+        current = find(j,i)
+
+        while (current.marker == marker && current.up.marker == marker)
+          markerCount += 1
+          current = current.up
+
+          if markerCount == 4
+            return markerCount
+          end
+        end
+      end
+    end
+  end
+
+  def checkRightUp(marker)
+    for i in 1..2
+      for j in 1..3
+        current = find(i,j)
+        markerCount = 0
+        
+        while current.marker == marker && current.rightUp.marker == marker)
+          markerCount += 1
+          current = current.rightUp
+
+          if markerCount == 4
+            return markerCount
+          end
+        end
+      end
+    end
+  end
+
+  def checkLeftUp(marker)
+    for i in 1..2
+      for j in 4..7
+        current = find(i,j)
+        markerCount = 0
+
+        while (current.marker == marker && current.leftUp.marker == marker)
+          markerCount += 1
+          current = current.leftUp
+
+          if markerCount == 4
+            return markerCount
+          end
+        end
+      end
+    end
   end
 
   def getMove()
