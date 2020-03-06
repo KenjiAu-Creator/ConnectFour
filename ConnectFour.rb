@@ -1,7 +1,7 @@
 class ConnectFour
   def initialize
     intro()
-    create_board()
+    createBoard()
     createMoveHash()
   end
 
@@ -13,12 +13,67 @@ class ConnectFour
     puts "=============================================================================================="
   end
 
-  def create_board
-    row = "| O | O | O | O | O | O | O |"
-    6.times do
-      puts row
+  def createHorizontalLinkBoard
+    # The connect four board is made up of 6 rows and 7 columns
+    @root = BoardSpace.new(0,0)
+    @current = @root
+    for i in 1..6
+      for j in 1..7
+        space = BoardSpace.new(i,j)
+        space.leftNode(space)
+        @current.rightNode(space)
+        @current = space
+      end
     end
-    puts "============================="
+  end
+
+  def createBoard
+    createHorizontalLinkBoard()
+    createVerticalLinkBoard()
+    createDiagonalLeftLinkBoard()
+    createDiagonalRightLinkBoard()
+  end
+
+  def createVerticalLinkBoard
+    # Start in column 1 and change the row first
+    for i in 1..6
+      for j in 1..6
+        current = find(j,i)
+        current.upNode(find(j+1,i))
+      end
+    end
+  end
+
+  def createDiagonalLeftLinkBoard
+    for i in 1..5
+      for j in 2..7
+        current = find(i,j)
+        current.leftUpNode(find(i+1,j-1))
+      end
+    end
+  end
+
+  def createDiagonalRightLinkBoard
+    for i in 1..5
+      for j in 1..6
+        current = find(i,j)
+        current.rightUpNode(find(i+1,j+1))
+      end
+    end
+  end
+
+  def find(row, col)
+    @current = root
+    while !@current.nil?
+      if @current.row == row && @current.column == column)
+        return @current
+      else
+        @current = @current.right
+        if @current.nil?
+          return false
+        end
+      end
+    end
   end
 
   def createMoveHash()
@@ -71,14 +126,42 @@ end
 
 class BoardSpace(row,col)
   def initialize
-    @col = col
+    @column = col
     @row = row
+    @next = nil
     @marker = nil
+
+    @left = nil
+    @leftUp = nil
+    @up = nil
+    @rightUp = nil
+    @right = nil
   end
 
   def placeMarker(marker)
     @marker = marker
   end
+
+  def rightNode(node)
+    @right = node
+  end
+
+  def leftNode(node)
+    @left = node
+  end
+
+  def upNode(node)
+    @up = node
+  end
+
+  def rightUpNode(node)
+    @rightUp = node
+  end
+
+  def leftUpNode(node)
+    @leftUp = node
+  end
+
 end
 
 class Player
