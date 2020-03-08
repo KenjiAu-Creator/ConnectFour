@@ -2,7 +2,9 @@ class ConnectFour
   def initialize
     intro()
     createBoard()
-    createMoveHash()
+    @currentPlayerId = 0
+    createPlayers()
+    play()
   end
 
   def intro
@@ -20,7 +22,6 @@ class ConnectFour
     for i in 1..6
       for j in 1..7
         space = BoardSpace.new(i,j)
-        space.leftNode(space)
         @current.rightNode(space)
         @current = space
       end
@@ -36,10 +37,10 @@ class ConnectFour
 
   def createVerticalLinkBoard
     # Start in column 1 and change the row first
-    for i in 1..6
-      for j in 1..6
-        current = find(j,i)
-        current.upNode(find(j+1,i))
+    for i in 1..7
+      for j in 1..5
+        current = findNext(j,i)
+        current.upNode(findNext(j+1,i))
       end
     end
   end
@@ -47,8 +48,8 @@ class ConnectFour
   def createDiagonalLeftLinkBoard
     for i in 1..5
       for j in 2..7
-        current = find(i,j)
-        current.leftUpNode(find(i+1,j-1))
+        current = findNext(i,j)
+        current.leftUpNode(findNext(i+1,j-1))
       end
     end
   end
@@ -56,44 +57,47 @@ class ConnectFour
   def createDiagonalRightLinkBoard
     for i in 1..5
       for j in 1..6
-        current = find(i,j)
-        current.rightUpNode(find(i+1,j+1))
+        current = findNext(i,j)
+        current.rightUpNode(findNext(i+1,j+1))
       end
     end
+  end
+
+  def findNext(row, col)
+    current = @root.right
+    while !((current.row == row) && (current.column == col))
+      if current.nil?
+        return false
+      else
+        current = current.right
+      end
+    end
+      
+    return current
+ 
   end
 
   def find(row, col)
-    @current = @root
-    while !@current.nil?
-
-      if (@current.row == row && @current.column == col)
-        return @current
-
-      else
-        @current = @current.right
-
-        if @current.nil?
-          return false
-        end
-
+    row = row.to_i
+    col = col.to_i
+    if ((row < 1 || row > 6) || (col < 1 || col > 7))
+      return false
+    else
+      current = @root.right
+      while !(current.row == row)
+        current = current.up
       end
+      
+      while !(current.column == col)
+        current = current.right
+      end
+
+      return current
     end
   end
 
-  def createMoveHash()
-    @moves = {
-      1 => [],
-      2 => [],
-      3 => [],
-      4 => [],
-      5 => [],
-      6 => [],
-      7 => [],
-    }
-  end
-
-  def winCondition
-    if (checkRight() || checkUp() || checkRightUp() || chickLeftUp())
+  def winCondition(marker)
+    if (checkRight(marker) || checkUp(marker) || checkRightUp(marker) || checkLeftUp(marker))
       return true
     else
       return false
@@ -111,13 +115,14 @@ class ConnectFour
           markerCount += 1
           current = current.right
 
-          if markerCount == 4
-            return markerCount
+          if markerCount == 3
+            return true
           end
 
         end
       end
     end
+    return false
   end
  
   def checkUp(marker)
@@ -131,13 +136,14 @@ class ConnectFour
           markerCount += 1
           current = current.up
 
-          if markerCount == 4
-            return markerCount
+          if markerCount == 3
+            return true
           end
 
         end
       end
     end
+    return false
   end
 
   def checkRightUp(marker)
@@ -150,12 +156,13 @@ class ConnectFour
           markerCount += 1
           current = current.rightUp
 
-          if markerCount == 4
-            return markerCount
+          if markerCount == 3
+            return true
           end
         end
       end
     end
+    return false
   end
 
   def checkLeftUp(marker)
@@ -168,13 +175,14 @@ class ConnectFour
           markerCount += 1
           current = current.leftUp
 
-          if markerCount == 4
-            return markerCount
+          if markerCount == 3
+            return true
           end
 
         end
       end
     end
+    return false
   end
 
   def getMove()
@@ -189,12 +197,17 @@ class ConnectFour
   end
 
   def placeMove(marker, column)
-    @moves[column].push(marker)
-    return @moves
+    current = find(1, column)
+
+    while !(current.marker.nil?)
+      current = current.up
+    end
+
+    current.marker = marker
   end
 
-  def currentPlayerId
-    currentPlayer = currentPlayerId
+  def currentPlayer
+    @players[@currentPlayerId]
   end
 
   def otherPlayerId
@@ -203,8 +216,34 @@ class ConnectFour
 
   def switchPlayers
     @currentPlayerId = otherPlayerId
-    puts "Player #{marker}\'s turn."
+    puts "Player #{@players[@currentPlayerId].marker}\'s turn."
     return @currentPlayerId
+  end
+
+  def play
+    gameOver = false
+
+    while !gameOver
+      playerMove = getMove()
+      playerMarker = currentPlayer.marker
+
+      placeMove(playerMarker, playerMove)
+      
+      if winCondition(playerMarker)
+        gameOver = true
+        puts "Game over! #{playerMarker} wins!"
+        break
+      end
+
+      switchPlayers()
+    end
+
+  end
+
+  def createPlayers
+    @players = [Player.new(0), Player.new(1)]
+    @players[0].marker = "white"
+    @players[1].marker = "black"
   end
 end
 
@@ -252,8 +291,12 @@ end
 class Player
   attr_accessor :id, :marker
 
-  def initialize
+  def initialize(id)
     @id = id
+    @marker = nil
+  end
+
+  def setMarker(marker)
     @marker = marker
   end
 end
