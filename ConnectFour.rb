@@ -4,6 +4,7 @@ class ConnectFour
     createBoard()
     @currentPlayerId = 0
     createPlayers()
+    displayBoard()
     play()
   end
 
@@ -187,6 +188,7 @@ class ConnectFour
 
   def getMove()
     puts "Please enter the column which you wish to place the marker."
+    puts "Player #{@players[@currentPlayerId].marker}\'s turn."
     playerMove = gets.chomp
     if (playerMove.to_i > 7 || playerMove.to_i < 1)
       puts "Invalid column. Please enter a column between 1-7 to play."
@@ -216,7 +218,6 @@ class ConnectFour
 
   def switchPlayers
     @currentPlayerId = otherPlayerId
-    puts "Player #{@players[@currentPlayerId].marker}\'s turn."
     return @currentPlayerId
   end
 
@@ -228,6 +229,7 @@ class ConnectFour
       playerMarker = currentPlayer.marker
 
       placeMove(playerMarker, playerMove)
+      updateBoard(playerMove, @currentPlayerId)
       
       if winCondition(playerMarker)
         gameOver = true
@@ -244,6 +246,43 @@ class ConnectFour
     @players = [Player.new(0), Player.new(1)]
     @players[0].marker = "white"
     @players[1].marker = "black"
+  end
+
+  def displayBoard
+    @row6 = "| 1 | 2 | 3 | 4 | 5 | 6 | 7 |"
+    @row5 = "| 1 | 2 | 3 | 4 | 5 | 6 | 7 |"
+    @row4 = "| 1 | 2 | 3 | 4 | 5 | 6 | 7 |"
+    @row3 = "| 1 | 2 | 3 | 4 | 5 | 6 | 7 |"
+    @row2 = "| 1 | 2 | 3 | 4 | 5 | 6 | 7 |"
+    @row1 = "| 1 | 2 | 3 | 4 | 5 | 6 | 7 |"
+    @row0 = "============================="
+
+    @rows = [@row1, @row2, @row3, @row4, @row5, @row6]
+
+    puts @row6, @row5, @row4, @row3, @row2, @row1, @row0
+  end
+
+  def updateBoard(column, currentPlayerId)
+    case currentPlayerId
+    when 1
+      marker = "\u26AA"
+    when 0
+      marker = "\u26AB"
+    end
+   
+    n = true 
+    i = 0
+
+    while n
+      if @rows[i].include?("#{column} ")
+        @rows[i].gsub!("#{column} ", marker)
+        n = false
+      else
+        i += 1
+      end
+    end
+
+    puts @rows.reverse
   end
 end
 
@@ -294,10 +333,6 @@ class Player
   def initialize(id)
     @id = id
     @marker = nil
-  end
-
-  def setMarker(marker)
-    @marker = marker
   end
 end
 
